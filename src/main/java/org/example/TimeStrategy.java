@@ -11,7 +11,7 @@ public class TimeStrategy implements Strategy{
                 minTimeServer = server;
             }
         }
-
         minTimeServer.addTask(t);
+        System.out.println("Client "+t.getId()+" arrived at "+t.getArrivalTime()+" and will be directed to queue "+minTimeServer.getId()+ " new waiting time:" + minTimeServer.getWaitingPeriod());
     }
 }

@@ -17,8 +17,10 @@ public class SimulationManager implements Runnable {
     private final ExecutorService executorService;
     private ConcurrentLinkedQueue<Task> tasks;
     private List<Server> servers;
+    private Strategy strategy;
+    private Policy policy;
 
-    public SimulationManager(int noOfClients, int noOfQueues, int simulationInterval, int minArrivalTime, int maxArrivalTime, int minServiceTime, int maxServiceTime) {
+    public SimulationManager(int noOfClients, int noOfQueues, int simulationInterval, int minArrivalTime, int maxArrivalTime, int minServiceTime, int maxServiceTime, Policy policy) {
         this.noOfClients = noOfClients;
         this.noOfQueues = noOfQueues;
         this.simulationInterval = simulationInterval;
@@ -29,21 +31,44 @@ public class SimulationManager implements Runnable {
         this.executorService= Executors.newFixedThreadPool(noOfQueues);
         this.tasks=new ConcurrentLinkedQueue<>();
         this.servers=new ArrayList<>();
+        this.policy=policy;
+        if(policy == Policy.SHORTEST_TIME){
+            strategy = new TimeStrategy();
+        }
+        else if(policy == Policy.SHORTEST_QUEUE){
+            strategy = new QueueStrategy();
+        }
     }
     public void run(){
+
         int currentTime=0;
+        generateClients();
+        sortClients();
+
         for(int i=0;i<noOfQueues;i++){
             Server s=new Server(i);
             servers.add(s);
             executorService.execute(s);
         }
-        generateClients();
-        sortClients();
-        while(currentTime<simulationInterval){
+
+        while(currentTime<simulationInterval)
+        {
             currentTime++;
             System.out.println("Time "+currentTime);
+            for(Task t:tasks){
+                if(t.getArrivalTime()==currentTime)
+                {
+                    strategy.addTask(servers,t);
+                }
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        for (Server s : servers) {
+        for (Server s : servers)
+        {
             s.stop();
         }
         executorService.shutdown();

@@ -1,6 +1,6 @@
 package org.example;
 
-public class Task  implements Runnable{
+public class Task{
     private int id;
     private int arrivalTime;
     private int serviceTime;
@@ -17,14 +17,7 @@ public class Task  implements Runnable{
         this.serviceTime = generateRandomTime(minServiceTime, maxServiceTime);
         waitingTime=0;
     }
-    public void run(){
-        try {
-            Thread.sleep(arrivalTime);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Client "+id+" arrived at "+arrivalTime+" and has the following service time"+serviceTime);
-    }
+
     public int getId() {
         return id;
     }
