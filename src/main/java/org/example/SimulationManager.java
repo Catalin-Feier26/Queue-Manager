@@ -37,19 +37,22 @@ public class SimulationManager implements Runnable
         this.tasks=new ConcurrentLinkedQueue<>();
         this.servers=new ArrayList<>();
         this.policy=policy;
-        if(policy == Policy.SHORTEST_TIME){
+
+        if(policy == Policy.SHORTEST_TIME)
+        {
             strategy = new TimeStrategy();
         }
-        else if(policy == Policy.SHORTEST_QUEUE){
+        else if(policy == Policy.SHORTEST_QUEUE)
+        {
             strategy = new QueueStrategy();
         }
     }
+
     public void run()
     {
         int currentTime=0;
         generateClients();
         sortClients();
-        //displayTasks();
         System.out.println("Simulation started");
         for(int i=0;i<noOfQueues;i++)
         {
@@ -78,7 +81,7 @@ public class SimulationManager implements Runnable
                 if(t.getArrivalTime()==currentTime)
                 {
                    Server selectedServer= strategy.addTask(servers,t);
-                     totalWaitingTime+=t.waitingTime;
+                   totalWaitingTime+=t.waitingTime;
                 }
             }
             try {
@@ -98,7 +101,8 @@ public class SimulationManager implements Runnable
 
     private void generateClients()
     {
-        for (int i = 1; i <= noOfClients; i++) {
+        for (int i = 1; i <= noOfClients; i++)
+        {
             Task c = new Task(i, maxArrivalTime, maxServiceTime, minArrivalTime, minServiceTime);
             tasks.add(c);
         }
@@ -116,26 +120,34 @@ public class SimulationManager implements Runnable
         tasks.addAll(sortedTasks);
     }
 
-    private void displayTasks(){
-        for(Task t:tasks){
+    private void displayTasks()
+    {
+        for(Task t:tasks)
+        {
             System.out.println("Client " + t.getId() + " arrived at " + t.getArrivalTime() + " and has the following service time " + t.getServiceTime());
         }
 
     }
 
-    public void printSimulationStatus(int currentTime) {
+    public void printSimulationStatus(int currentTime)
+    {
         System.out.println("Time " + currentTime);
         displayWaitingTasks();
-        for (Server s : servers) {
+
+        for (Server s : servers)
+        {
             s.printTasks();
         }
         System.out.println();
     }
 
-    private void displayWaitingTasks(){
+    private void displayWaitingTasks()
+    {
         System.out.print("Waiting clients: ");
-        for(Task t: tasks){
-            if(!t.isInQueue()){
+        for(Task t: tasks)
+        {
+            if(!t.isInQueue())
+            {
                 System.out.printf("(%d,%d,%d); ",t.getId(),t.getArrivalTime(),t.getServiceTime());
             }
         }

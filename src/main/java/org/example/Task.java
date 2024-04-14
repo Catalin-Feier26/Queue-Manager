@@ -1,18 +1,23 @@
 package org.example;
 
-public class Task{
+public class Task
+{
     private int id;
     private int arrivalTime;
     private int serviceTime;
     public int waitingTime;
     private boolean inQueue;
-    public Task(int id, int arrivalTime, int serviceTime) {
+
+    public Task(int id, int arrivalTime, int serviceTime)
+    {
         this.id = id;
         this.arrivalTime = arrivalTime;
         this.serviceTime = serviceTime;
         waitingTime=0;
     }
-    public Task(int id, int maxArrivalTime, int maxServiceTime, int minArrivalTime, int minServiceTime) {
+
+    public Task(int id, int maxArrivalTime, int maxServiceTime, int minArrivalTime, int minServiceTime)
+    {
         this.id = id;
         this.arrivalTime = generateRandomTime(minArrivalTime, maxArrivalTime);
         this.serviceTime = generateRandomTime(minServiceTime, maxServiceTime);
