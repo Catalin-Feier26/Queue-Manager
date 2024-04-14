@@ -5,6 +5,7 @@ public class Task{
     private int arrivalTime;
     private int serviceTime;
     public int waitingTime;
+    private boolean inQueue;
     public Task(int id, int arrivalTime, int serviceTime) {
         this.id = id;
         this.arrivalTime = arrivalTime;
@@ -16,8 +17,15 @@ public class Task{
         this.arrivalTime = generateRandomTime(minArrivalTime, maxArrivalTime);
         this.serviceTime = generateRandomTime(minServiceTime, maxServiceTime);
         waitingTime=0;
+        inQueue=false;
     }
 
+    public boolean isInQueue() {
+        return inQueue;
+    }
+    public void setInQueue(boolean inQueue) {
+        this.inQueue = inQueue;
+    }
     public int getId() {
         return id;
     }

@@ -1,7 +1,6 @@
 package org.example;
 
-import java.util.SortedMap;
-import java.util.concurrent.BlockingQueue;
+
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -17,8 +16,13 @@ public class Server implements Runnable{
         shouldRun=true;
     }
     public void addTask(Task t){
-        t.waitingTime=waitingPeriod.get();
         tasks.add(t);
+        t.setInQueue(true);
+        if(tasks.isEmpty()){
+            t.waitingTime=0;
+        }else{
+            t.waitingTime=waitingPeriod.get();
+        }
         waitingPeriod.addAndGet(t.getServiceTime());
     }
     public void run(){
@@ -26,7 +30,7 @@ public class Server implements Runnable{
         {
             if(!tasks.isEmpty())
             {
-                Task t=tasks.poll();
+                Task t=tasks.peek();
                 t.waitingTime=waitingPeriod.get();
                 for(int i=0;i<t.getServiceTime();i++)
                 {
@@ -36,15 +40,23 @@ public class Server implements Runnable{
                         e.printStackTrace();
                     }
                 }
-                System.out.println("Client "+t.getId()+" has left the queue "+id+" at time "+(t.getArrivalTime()+t.getServiceTime())+" waiting time: "+t.waitingTime);
+                tasks.poll();
+                //System.out.println("Client "+t.getId()+" has left the queue "+id+" at time "+(t.getArrivalTime()+t.getServiceTime())+" waiting time: "+t.waitingTime);
                 waitingPeriod.addAndGet(-t.getServiceTime());
             }
         }
     }
-    public void printTasks(){
-        for(Task t:tasks){
-            System.out.println("Client"+t.getId()+" arrived at "+t.getArrivalTime());
+    public void printTasks()
+    {
+        System.out.print("Queue " + id + ": ");
+        if (!tasks.isEmpty()) {
+            for(Task t:tasks){
+                System.out.printf("(%d,%d,%d); ",t.getId(),t.getArrivalTime(),t.getServiceTime());
+            }
+        } else {
+            System.out.print("closed");
         }
+        System.out.println();
     }
     public int getId(){
         return id;
