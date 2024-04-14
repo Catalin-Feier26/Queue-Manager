@@ -20,6 +20,9 @@ public class SimulationManager implements Runnable
     private List<Server> servers;
     private Strategy strategy;
     private Policy policy;
+    private int totalWaitingTime=0;
+    private int peakTime=0;
+    private int maxClients=0;
 
     public SimulationManager(int noOfClients, int noOfQueues, int simulationInterval, int minArrivalTime, int maxArrivalTime, int minServiceTime, int maxServiceTime, Policy policy)
     {
@@ -46,7 +49,7 @@ public class SimulationManager implements Runnable
         int currentTime=0;
         generateClients();
         sortClients();
-        displayTasks();
+        //displayTasks();
         System.out.println("Simulation started");
         for(int i=0;i<noOfQueues;i++)
         {
@@ -58,10 +61,24 @@ public class SimulationManager implements Runnable
         {
             currentTime++;
             printSimulationStatus(currentTime);
-            for(Task t:tasks){
+
+            int totalClients=0;
+            for(Server s:servers)
+            {
+                totalClients+=s.getTasks().size();
+            }
+            if(totalClients>maxClients)
+            {
+                maxClients=totalClients;
+                peakTime=currentTime;
+            }
+
+            for(Task t:tasks)
+            {
                 if(t.getArrivalTime()==currentTime)
                 {
-                    strategy.addTask(servers,t);
+                   Server selectedServer= strategy.addTask(servers,t);
+                     totalWaitingTime+=t.waitingTime;
                 }
             }
             try {
@@ -75,7 +92,10 @@ public class SimulationManager implements Runnable
             s.stop();
         }
         executorService.shutdown();
+        System.out.println("average waiting time: "+(double)totalWaitingTime/noOfClients);
+        System.out.println("Peak time: " + peakTime + " with " + maxClients + " clients");
     }
+
     private void generateClients()
     {
         for (int i = 1; i <= noOfClients; i++) {
@@ -83,6 +103,7 @@ public class SimulationManager implements Runnable
             tasks.add(c);
         }
     }
+
     private void sortClients()
     {
         List<Task> sortedTasks=new ArrayList<>();
@@ -94,10 +115,12 @@ public class SimulationManager implements Runnable
         sortedTasks.sort(Comparator.comparing(Task::getArrivalTime));
         tasks.addAll(sortedTasks);
     }
+
     private void displayTasks(){
         for(Task t:tasks){
             System.out.println("Client " + t.getId() + " arrived at " + t.getArrivalTime() + " and has the following service time " + t.getServiceTime());
         }
+
     }
 
     public void printSimulationStatus(int currentTime) {

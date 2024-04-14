@@ -3,7 +3,7 @@ package org.example;
 import java.util.List;
 
 public class QueueStrategy implements Strategy{
-    public  void addTask(List<Server> servers, Task t){
+    public  Server addTask(List<Server> servers, Task t){
         Server minQueueServer = servers.get(0);
 
         for(Server server : servers){
@@ -13,7 +13,7 @@ public class QueueStrategy implements Strategy{
         }
     //    System.out.println("Client "+t.getId()+" arrived at "+t.getArrivalTime()+" and will be directed to queue "+minQueueServer.getId()+" new waiting time:" + minQueueServer.getWaitingPeriod());
         minQueueServer.addTask(t);
-        System.out.println("Client "+t.getId()+" arrived at "+t.getArrivalTime()+" and will be directed to queue "+minQueueServer.getId()+" new waiting time:" + minQueueServer.getWaitingPeriod());
-
+     //   System.out.println("Client "+t.getId()+" arrived at "+t.getArrivalTime()+" and will be directed to queue "+minQueueServer.getId()+" new waiting time:" + minQueueServer.getWaitingPeriod());
+        return minQueueServer;
     }
 }
