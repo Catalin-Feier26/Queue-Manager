@@ -78,7 +78,7 @@ public class SimulationManager implements Runnable
 
             for(Task t:tasks)
             {
-                if(t.getArrivalTime()==currentTime)
+                if(t.getArrivalTime()-1==currentTime)
                 {
                    Server selectedServer= strategy.addTask(servers,t);
                    totalWaitingTime+=t.waitingTime;
