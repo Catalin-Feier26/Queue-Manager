@@ -42,30 +42,32 @@ public class Server implements Runnable
         waitingPeriod.addAndGet(t.getServiceTime());
     }
 
-    public void run()
-    {
-        while(shouldRun)
-        {
-            if(!tasks.isEmpty())
-            {
-                Task t=tasks.peek();
-                t.waitingTime=waitingPeriod.get();
-                for(int i=0;i<t.getServiceTime();i++)
-                {
+    public void run() {
+        while (shouldRun) {
+            if (!tasks.isEmpty()) {
+                Task t = tasks.peek();
+                t.isAtFront = true;
+                t.waitingTime = waitingPeriod.get();
+                int serviceTime = t.getServiceTime();
+                t.leftServiceTime = serviceTime; // Set leftServiceTime to the actual service time
+                for (int i = 0; i < serviceTime; i++) {
                     try {
                         Thread.sleep(1000);
-                    } catch (InterruptedException e)
-                    {
+                    } catch (InterruptedException e) {
                         shouldRun = false;
                         Thread.currentThread().interrupt();
                         break;
                     }
+                    t.leftServiceTime--; // Update leftServiceTime each second
                 }
                 tasks.poll();
-                waitingPeriod.addAndGet(-t.getServiceTime());
+                t.isAtFront = false;
+                waitingPeriod.addAndGet(-serviceTime);
             }
         }
     }
+
+
     public void printTasks() {
         System.out.print("Queue " + id + ": ");
         writer.print("Queue " + id + ": ");
@@ -73,8 +75,16 @@ public class Server implements Runnable
             int queueSize = tasks.size();
             if (queueSize > 0) {
                 StringBuilder queueTasks = new StringBuilder();
-                for (Task t : tasks) {
-                    queueTasks.append("(").append(t.getId()).append(",").append(t.getArrivalTime()).append(",").append(t.getServiceTime()).append("); ");
+                for (Task t : tasks)
+                {
+                    if(t.isAtFront) {
+                        int remainingServiceTime = t.getServiceTime() - (t.getServiceTime() - t.leftServiceTime);
+                        queueTasks.append("(").append(t.getId()).append(",").append(t.getArrivalTime()).append(",").append(remainingServiceTime).append("); ");
+                    }
+                    else{
+                        queueTasks.append("(").append(t.getId()).append(",").append(t.getArrivalTime()).append(",").append(t.getServiceTime()).append("); ");
+
+                    }
                 }
                 SwingUtilities.invokeLater(() -> textArea.append("Queue " + id + ": " + queueSize + "\n"));
                 System.out.print(queueTasks);
@@ -88,6 +98,8 @@ public class Server implements Runnable
         System.out.println();
         writer.println();
     }
+
+
 
 
     public int getId(){

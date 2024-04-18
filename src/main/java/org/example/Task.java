@@ -8,7 +8,7 @@ public class Task
     public int leftServiceTime;
     public int waitingTime;
     private boolean inQueue;
-
+    public boolean isAtFront;
     public Task(int id, int arrivalTime, int serviceTime)
     {
         this.id = id;
@@ -16,6 +16,7 @@ public class Task
         this.serviceTime = serviceTime;
         leftServiceTime=serviceTime;
         waitingTime=0;
+        isAtFront=false;
     }
 
     public Task(int id, int maxArrivalTime, int maxServiceTime, int minArrivalTime, int minServiceTime)
