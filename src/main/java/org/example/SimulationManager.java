@@ -67,6 +67,7 @@ public class SimulationManager implements Runnable
         sortClients();
         System.out.println("Simulation started");
         writer.println("Simulation started");
+        SwingUtilities.invokeLater(() -> textArea.setText("Simulation started" + "\n"));
 
         for(int i=0;i<noOfQueues;i++)
         {
@@ -74,13 +75,12 @@ public class SimulationManager implements Runnable
             servers.add(s);
             executorService.execute(s);
         }
-        while(currentTime<simulationInterval && running)
+        while(currentTime<=simulationInterval && running)
         {
-            currentTime++;
+
             printSimulationStatus(currentTime);
-            System.out.println("--------------------------------------------------");
             writer.println("--------------------------------------------------");
-            textArea.append("--------------------------------------------------" + "\n");
+            System.out.println("--------------------------------------------------");
             int totalClients=0;
             for(Server s:servers)
             {
@@ -94,7 +94,7 @@ public class SimulationManager implements Runnable
 
             for(Task t:tasks)
             {
-                if(t.getArrivalTime()-1==currentTime)
+                if(t.getArrivalTime()==currentTime+1)
                 {
                    Server selectedServer= strategy.addTask(servers,t);
                    totalWaitingTime.addAndGet(t.getWaitingTime());
@@ -105,21 +105,25 @@ public class SimulationManager implements Runnable
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            currentTime++;
         }
         for (Server s : servers)
         {
             s.stop();
         }
         executorService.shutdown();
-        System.out.println("Average waiting time: "+(double)totalWaitingTime.get()/noOfClients);
+
         writer.println("Average waiting time: "+(double)totalWaitingTime.get()/noOfClients);
-        textArea.append("Average waiting time: "+(double)totalWaitingTime.get()/noOfClients + "\n");
-        System.out.println("Peak time: " + peakTime + " with " + maxClients + " clients");
+        System.out.println("Average waiting time: "+(double)totalWaitingTime.get()/noOfClients);
+        SwingUtilities.invokeLater(() -> textArea.append("Average waiting time: "+(double)totalWaitingTime.get()/noOfClients + "\n"));
+
         writer.println("Peak time: " + peakTime + " with " + maxClients + " clients");
-        textArea.append("Peak time: " + peakTime + " with " + maxClients + " clients" + "\n");
-        System.out.println("Average service time: "+(double)totalServiceTime/noOfClients);
+        System.out.println("Peak time: " + peakTime + " with " + maxClients + " clients");
+        SwingUtilities.invokeLater(() -> textArea.append("Peak time: " + peakTime + " with " + maxClients + " clients" + "\n"));
+
         writer.println("Average service time: "+(double)totalServiceTime/noOfClients);
-        textArea.append("Average service time: "+(double)totalServiceTime/noOfClients + "\n");
+        System.out.println("Average service time: "+(double)totalServiceTime/noOfClients);
+        SwingUtilities.invokeLater(() -> textArea.append("Average service time: "+(double)totalServiceTime/noOfClients + "\n"));
     }
     public void stopSimulation()
     {
@@ -159,22 +163,12 @@ public class SimulationManager implements Runnable
         tasks.addAll(sortedTasks);
     }
 
-    private void displayTasks()
-    {
-        for(Task t:tasks)
-        {
-            System.out.println("Client " + t.getId() + " arrived at " + t.getArrivalTime() + " and has the following service time " + t.getServiceTime());
-            textArea.append("Client " + t.getId() + " arrived at " + t.getArrivalTime() + " and has the following service time " + t.getServiceTime() + "\n");
-            writer.println("Client " + t.getId() + " arrived at " + t.getArrivalTime() + " and has the following service time " + t.getServiceTime());
-        }
-
-    }
 
     public void printSimulationStatus(int currentTime)
     {
         System.out.println("Time " + currentTime);
         writer.println("Time " + currentTime);
-        textArea.append("Time " + currentTime + "\n");
+        SwingUtilities.invokeLater(() -> textArea.setText("Time " + currentTime + "\n"));
         displayWaitingTasks();
 
         for (Server s : servers)
@@ -186,19 +180,21 @@ public class SimulationManager implements Runnable
 
     private void displayWaitingTasks()
     {
+        int nrTot=0;
         System.out.print("Waiting clients: ");
         writer.print("Waiting clients: ");
-        textArea.append("Waiting clients: ");
+        SwingUtilities.invokeLater(() -> textArea.append("Waiting clients: "));
         for(Task t: tasks)
         {
             if(!t.isInQueue())
             {
-                System.out.printf("(%d,%d,%d); ",t.getId(),t.getArrivalTime(),t.getServiceTime());
+                nrTot++;
                 writer.printf("(%d,%d,%d); ",t.getId(),t.getArrivalTime(),t.getServiceTime());
-                textArea.append("(" + t.getId() + "," + t.getArrivalTime() + "," + t.getServiceTime() + "); ");
+                System.out.printf("(%d,%d,%d); ",t.getId(),t.getArrivalTime(),t.getServiceTime());
             }
         }
-        textArea.append("\n");
+        int finalNrTot = nrTot;
+        SwingUtilities.invokeLater(() -> textArea.append(finalNrTot + "\n"));
         writer.println();
         System.out.println();
     }

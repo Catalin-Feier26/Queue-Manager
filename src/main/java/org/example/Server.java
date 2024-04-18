@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Server implements Runnable
 {
     private int id;
-    private ConcurrentLinkedQueue<Task> tasks;
+    private final ConcurrentLinkedQueue<Task> tasks;
     private AtomicInteger waitingPeriod;
     private volatile boolean shouldRun;
 
@@ -66,28 +66,30 @@ public class Server implements Runnable
             }
         }
     }
-    public void printTasks()
-    {
+    public void printTasks() {
         System.out.print("Queue " + id + ": ");
         writer.print("Queue " + id + ": ");
-        textArea.append("Queue " + id + ": ");
-        if (!tasks.isEmpty())
-        {
-            for(Task t:tasks)
-            {
-                System.out.printf("(%d,%d,%d); ",t.getId(),t.getArrivalTime(),t.getServiceTime());
-                writer.printf("(%d,%d,%d); ",t.getId(),t.getArrivalTime(),t.getServiceTime());
-                textArea.append("(" + t.getId() + "," + t.getArrivalTime() + "," + t.getServiceTime() + "); ");
+        synchronized (tasks) {
+            int queueSize = tasks.size();
+            if (queueSize > 0) {
+                StringBuilder queueTasks = new StringBuilder();
+                for (Task t : tasks) {
+                    queueTasks.append("(").append(t.getId()).append(",").append(t.getArrivalTime()).append(",").append(t.getServiceTime()).append("); ");
+                }
+                SwingUtilities.invokeLater(() -> textArea.append("Queue " + id + ": " + queueSize + "\n"));
+                System.out.print(queueTasks);
+                writer.print(queueTasks);
+            } else {
+                SwingUtilities.invokeLater(() -> textArea.append("Queue " + id + ": closed\n"));
+                System.out.print("closed");
+                writer.print("closed");
             }
-        } else {
-            System.out.print("closed");
-            writer.print("closed");
-            textArea.append("closed");
         }
         System.out.println();
         writer.println();
-        textArea.append("\n");
     }
+
+
     public int getId(){
         return id;
     }
