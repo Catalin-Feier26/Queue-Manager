@@ -134,7 +134,7 @@ public class SimulationManager implements Runnable
         }
         closeWriter();
         executorService.shutdown();
-        currentThread().interrupt();
+        //currentThread().interrupt();
     }
     public void closeWriter() {
         if (writer != null) {

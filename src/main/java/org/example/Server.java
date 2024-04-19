@@ -49,7 +49,7 @@ public class Server implements Runnable
                 t.isAtFront = true;
                 t.waitingTime = waitingPeriod.get();
                 int serviceTime = t.getServiceTime();
-                t.leftServiceTime = serviceTime; // Set leftServiceTime to the actual service time
+                t.leftServiceTime = serviceTime;
                 for (int i = 0; i < serviceTime; i++) {
                     try {
                         Thread.sleep(1000);
@@ -58,7 +58,7 @@ public class Server implements Runnable
                         Thread.currentThread().interrupt();
                         break;
                     }
-                    t.leftServiceTime--; // Update leftServiceTime each second
+                    t.leftServiceTime--;
                 }
                 tasks.poll();
                 t.isAtFront = false;
@@ -99,15 +99,12 @@ public class Server implements Runnable
         writer.println();
     }
 
-
-
-
     public int getId(){
         return id;
     }
     public void stop(){
         shouldRun=false;
-        Thread.currentThread().interrupt();
+       // Thread.currentThread().interrupt();
     }
     public int getWaitingPeriod(){
         return waitingPeriod.get();
